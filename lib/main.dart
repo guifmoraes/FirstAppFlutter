@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:english_words/english_words.dart';
+import 'package:first_app/models/posts.dart';
+import 'package:first_app/services/remote.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -66,6 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         page = FavoritesPage();
         break;
+      case 2:
+        page = APIPosts();
+        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -85,6 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('Favorites'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.api),
+                    label: Text('API Tests'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -152,10 +163,15 @@ class GeneratorPage extends StatelessWidget {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: colorScheme.primaryContainer,
       appBar: AppBar(
-        title: Text('List Of Your Favorite Words!'),
-      ),
+          backgroundColor: colorScheme.primaryContainer,
+          title: Text('List Of Your Favorite Words!'),
+          titleTextStyle:
+              TextStyle(color: colorScheme.onPrimaryContainer, fontSize: 20)),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FavList(),
@@ -184,6 +200,8 @@ class _FavListState extends State<FavList> {
             return Card(
               color: theme.colorScheme.inversePrimary,
               child: DataTable(
+                  columnSpacing: 5,
+                  dividerThickness: 0.0,
                   dataTextStyle: TextStyle(
                       color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
@@ -216,6 +234,58 @@ class _FavListState extends State<FavList> {
     } else {
       return Text('No favorite words found!');
     }
+  }
+}
+
+class APIPosts extends StatefulWidget {
+  @override
+  State<APIPosts> createState() => _APIPostsState();
+}
+
+class _APIPostsState extends State<APIPosts> {
+  List<Post>? posts;
+  var isLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    posts = await RemoteServices().getPosts();
+    if (posts != null) {
+      setState(() {
+        isLoaded = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Testing API Rest EndPoints'),
+      ),
+      body: isLoaded
+          ? SingleChildScrollView(
+              child: Card(
+                child: DataTable(
+                  columns: [
+                    DataColumn(label: Text('Data')),
+                  ],
+                  rows: [
+                    for (Post post in posts!)
+                      DataRow(cells: [DataCell(Text(post.title))])
+                  ],
+                ),
+              ),
+            )
+          : Center(
+              child:
+                  CircularProgressIndicator(), // Mostra um indicador de progresso
+            ),
+    );
   }
 }
 
