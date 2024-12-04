@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
 
-  void getNext(){
+  void getNext() {
     current = WordPair.random();
 
     notifyListeners();
@@ -36,10 +36,10 @@ class MyAppState extends ChangeNotifier {
 
   var favorites = <WordPair>[];
 
-  void saveFavs(){
-    if (favorites.contains(current)){
+  void saveFavs() {
+    if (favorites.contains(current)) {
       favorites.remove(current);
-    } else{
+    } else {
       favorites.add(current);
     }
     print('Favorites List $favorites');
@@ -50,8 +50,7 @@ class MyAppState extends ChangeNotifier {
 
 class MyHomePage extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => 
-  _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -71,43 +70,41 @@ class _MyHomePageState extends State<MyHomePage> {
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
-                    ),
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                    });
-                  },
-                ),
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SafeArea(
+              child: NavigationRail(
+                extended: constraints.maxWidth >= 600,
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.home),
+                    label: Text('Home'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.favorite),
+                    label: Text('Favorites'),
+                  ),
+                ],
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (value) {
+                  setState(() {
+                    selectedIndex = value;
+                  });
+                },
               ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
+            ),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: page,
               ),
-            ],
-          ),
-        );
-      }
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -117,7 +114,9 @@ class GeneratorPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var words = appState.current;
 
-    IconData icon = (appState.favorites.contains(words)) ? Icons.favorite : Icons.favorite_border;
+    IconData icon = (appState.favorites.contains(words))
+        ? Icons.favorite
+        : Icons.favorite_border;
 
     return Center(
       child: Column(
@@ -153,35 +152,32 @@ class GeneratorPage extends StatelessWidget {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
     var appState = context.watch<MyAppState>();
     var theme = Theme.of(context);
 
     return Scaffold(
-      body: Card(
-        color: theme.colorScheme.inversePrimary,
-        
-        child: DataTable(
-          dataTextStyle: TextStyle(
-            color: theme.colorScheme.onPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 20
-          ),
-          headingTextStyle: TextStyle(
-            color: theme.colorScheme.secondary,
-            fontWeight: FontWeight.w600,
-            fontSize: 20
-          ),
-          columns: [
-            DataColumn(
-              label: Text('Favorites'))
-          ],
-          rows: [
-            for (var fav in appState.favorites)
-              DataRow(cells: [
-                DataCell(Text(fav.toString()))
-              ])
-          ]
+      appBar: AppBar(
+        title: Text('List Of Your Favorite Words!'),
+      ),
+      body: SingleChildScrollView(
+        child: Card(
+          color: theme.colorScheme.inversePrimary,
+          child: DataTable(
+              dataTextStyle: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20),
+              headingTextStyle: TextStyle(
+                  color: theme.colorScheme.secondary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20),
+              columns: [
+                DataColumn(label: Text('Favorites'))
+              ],
+              rows: [
+                for (var fav in appState.favorites)
+                  DataRow(cells: [DataCell(Text(fav.toString()))])
+              ]),
         ),
       ),
     );
@@ -199,16 +195,15 @@ class BigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary
-    );
+    var style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.onPrimary);
 
     return Card(
       color: theme.colorScheme.primary,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(
-          words.asPascalCase, 
+          words.asPascalCase,
           style: style,
           semanticsLabel: words.asPascalCase,
         ),
