@@ -152,35 +152,70 @@ class GeneratorPage extends StatelessWidget {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('List Of Your Favorite Words!'),
       ),
-      body: SingleChildScrollView(
-        child: Card(
-          color: theme.colorScheme.inversePrimary,
-          child: DataTable(
-              dataTextStyle: TextStyle(
-                  color: theme.colorScheme.onPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20),
-              headingTextStyle: TextStyle(
-                  color: theme.colorScheme.secondary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20),
-              columns: [
-                DataColumn(label: Text('Favorites'))
-              ],
-              rows: [
-                for (var fav in appState.favorites)
-                  DataRow(cells: [DataCell(Text(fav.toString()))])
-              ]),
-        ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FavList(),
       ),
     );
+  }
+}
+
+class FavList extends StatefulWidget {
+  const FavList({super.key});
+
+  @override
+  State<FavList> createState() => _FavListState();
+}
+
+class _FavListState extends State<FavList> {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    var theme = Theme.of(context);
+
+    if (appState.favorites.isNotEmpty) {
+      return ListView.builder(
+          itemCount: 1,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              color: theme.colorScheme.inversePrimary,
+              child: DataTable(
+                  dataTextStyle: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20),
+                  headingTextStyle: TextStyle(
+                      color: theme.colorScheme.secondary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20),
+                  columns: [
+                    DataColumn(label: Text('')),
+                    DataColumn(label: Text('Favorites'))
+                  ],
+                  rows: [
+                    for (var fav in appState.favorites)
+                      DataRow(cells: [
+                        DataCell(ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              appState.favorites.remove(fav);
+                            });
+                          },
+                          icon: Icon(Icons.favorite),
+                          label: Text('like'),
+                        )),
+                        DataCell(Text(fav.toString()))
+                      ]),
+                  ]),
+            );
+          });
+    } else {
+      return Text('No favorite words found!');
+    }
   }
 }
 
